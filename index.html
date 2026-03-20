@@ -324,9 +324,17 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overfl
       <div class="topic-chip active" data-topic="tech">💻 Tech / Dev</div>
       <div class="topic-chip" data-topic="finance">💰 Finanças</div>
       <div class="topic-chip" data-topic="business">💼 Negócios</div>
-      <div class="topic-chip" data-topic="daily">🗣️ Cotidiano</div>
-      <div class="topic-chip" data-topic="travel">✈️ Viagens</div>
+      <div class="topic-chip" data-topic="travel">✈️ Turismo</div>
+      <div class="topic-chip" data-topic="objects">🪑 Objetos</div>
+      <div class="topic-chip" data-topic="conversation">🗣️ Conversação</div>
+      <div class="topic-chip" data-topic="daily">📅 Cotidiano</div>
       <div class="topic-chip" data-topic="idioms">🎯 Expressões</div>
+      <div class="topic-chip" data-topic="food">🍽️ Gastronomia</div>
+      <div class="topic-chip" data-topic="health">🏥 Saúde</div>
+      <div class="topic-chip" data-topic="nature">🌿 Natureza</div>
+      <div class="topic-chip" data-topic="culture">🎭 Cultura</div>
+      <div class="topic-chip" data-topic="sports">⚽ Esportes</div>
+      <div class="topic-chip" data-topic="academic">📚 Acadêmico</div>
     </div>
 
     <button class="gen-btn" id="genBtn" onclick="generate()">
@@ -523,16 +531,27 @@ window.addEventListener('load', () => {
 
 // ── TOPICS ──────────────────────────────────────────────
 const TOPIC_MAP = {
-  tech:    'technology, programming, software development and IT',
-  finance: 'finance, banking, investments and financial markets',
-  business:'business, corporate communication, management and entrepreneurship',
-  daily:   'everyday conversation, social situations and casual English',
-  travel:  'travel, tourism, airports, hotels and transportation',
-  idioms:  'English idioms, phrasal verbs and common expressions'
+  tech:        'technology, programming, software development and IT',
+  finance:     'finance, banking, investments and financial markets',
+  business:    'business, corporate communication, management and entrepreneurship',
+  travel:      'travel, tourism, airports, hotels, sightseeing and transportation',
+  objects:     'everyday objects, household items, tools and physical things around us',
+  conversation:'everyday conversation, greetings, social situations and casual English dialogue',
+  daily:       'daily routines, schedules, habits and everyday activities',
+  idioms:      'English idioms, phrasal verbs and common expressions',
+  food:        'food, cooking, gastronomy, restaurants and dining experiences',
+  health:      'health, medicine, fitness, wellness and medical vocabulary',
+  nature:      'nature, environment, weather, animals and ecological vocabulary',
+  culture:     'arts, culture, music, movies, literature and entertainment',
+  sports:      'sports, fitness, competitions, teams and athletic vocabulary',
+  academic:    'academic English, formal writing, research and university vocabulary'
 };
 const TOPIC_LABEL = {
   tech:'Tech / Dev', finance:'Finanças', business:'Negócios',
-  daily:'Cotidiano', travel:'Viagens', idioms:'Expressões'
+  travel:'Turismo', objects:'Objetos', conversation:'Conversação',
+  daily:'Cotidiano', idioms:'Expressões', food:'Gastronomia',
+  health:'Saúde', nature:'Natureza', culture:'Cultura',
+  sports:'Esportes', academic:'Acadêmico'
 };
 
 document.querySelectorAll('.topic-chip').forEach(c => {
@@ -556,14 +575,14 @@ async function generate() {
   loading.classList.add('active');
   errEl.textContent = '';
 
-  const prompt = `Você é um professor expert de inglês. Gere uma lição diária para um desenvolvedor brasileiro que trabalha com automação Python, sistemas fintech e ciência de dados.
+  const prompt = `Você é um professor expert de inglês. Gere uma lição diária para um brasileiro que estuda inglês com foco prático no tema solicitado.
 
 Responda APENAS com JSON válido, sem markdown, sem texto extra:
 
 {
   "lessonTitle": "Título curto em inglês (4-6 palavras)",
   "lessonTopic": "${TOPIC_LABEL[currentTopic]}",
-  "lessonExplanation": "2-3 parágrafos em português sobre o tema ${TOPIC_MAP[currentTopic]}. Use <strong> para termos-chave em inglês e <em> para exemplos.",
+  "lessonExplanation": "2-3 parágrafos em português sobre o tema ${TOPIC_MAP[currentTopic]}. Use <strong> para termos-chave em inglês e <em> para exemplos práticos. Inclua contexto cultural e dicas de uso real.",
   "words": [
     {
       "word": "palavra em inglês",
@@ -586,7 +605,7 @@ Responda APENAS com JSON válido, sem markdown, sem texto extra:
 Requisitos: exatamente 10 palavras do tema, nível intermediário-avançado, exatamente 5 questões de quiz.`;
 
   try {
-    const res = await fetch('https://dawn-silence-e2ee.smottae.workers.dev', {
+    const res = await fetch(PROXY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
