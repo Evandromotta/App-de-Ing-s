@@ -586,7 +586,7 @@ Responda APENAS com JSON válido, sem markdown, sem texto extra:
 Requisitos: exatamente 10 palavras do tema, nível intermediário-avançado, exatamente 5 questões de quiz.`;
 
   try {
-    const res = await fetch(PROXY_URL, {
+    const res = await fetch('https://dawn-silence-e2ee.smottae.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
