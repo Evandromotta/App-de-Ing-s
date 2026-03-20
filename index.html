@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Daily English">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<title>Daily English</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #13131e;
+  --surface2: #1c1c2b;
+  --border: #272740;
+  --accent: #7c6af7;
+  --accent-dim: rgba(124,106,247,0.15);
+  --gold: #f7c26a;
+  --gold-dim: rgba(247,194,106,0.12);
+  --green: #6af7b8;
+  --green-dim: rgba(106,247,184,0.12);
+  --red: #f76a6a;
+  --text: #eceaf8;
+  --muted: #5a5870;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── SCREENS ── */
+.screen {
+  display: none;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding-top: calc(var(--safe-top) + 56px);
+  padding-bottom: calc(var(--safe-bottom) + 64px);
+}
+.screen.active { display: flex; }
+
+/* ── TOP BAR ── */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: calc(var(--safe-top) + 56px);
+  padding-top: var(--safe-top);
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-bottom: 0.75rem;
+  z-index: 100;
+}
+
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.topbar-logo .flag { font-size: 1.25rem; }
+.topbar-logo span { color: var(--accent); }
+
+.topbar-streak {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid rgba(247,194,106,0.2);
+  padding: 0.3rem 0.75rem;
+  border-radius: 100px;
+}
+
+/* ── BOTTOM NAV ── */
+.bottomnav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: calc(var(--safe-bottom) + 64px);
+  padding-bottom: var(--safe-bottom);
+  background: rgba(10,10,15,0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 0.5rem;
+  z-index: 100;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  padding: 0.25rem 0;
+}
+
+.nav-icon { font-size: 1.3rem; }
+.nav-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--muted);
+  transition: color 0.15s;
+}
+.nav-item.active .nav-label { color: var(--accent); }
+.nav-item.active .nav-icon { filter: drop-shadow(0 0 6px var(--accent)); }
+
+/* ── SCROLL CONTAINER ── */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1.25rem;
+}
+
+/* ── HOME SCREEN ── */
+.home-hero {
+  margin-bottom: 1.5rem;
+}
+
+.home-date {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.home-title {
+  font-family: 'Crimson Pro', serif;
+  font-size: 2.2rem;
+  font-weight: 300;
+  line-height: 1.1;
+}
+
+.home-title strong {
+  font-weight: 600;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* STREAK CARD */
+.streak-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.streak-left { flex:1; }
+.streak-num {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1;
+}
+.streak-sub {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.streak-dots {
+  display: flex;
+  gap: 0.35rem;
+}
+.streak-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: all 0.3s;
+}
+.streak-dot.done {
+  background: var(--gold);
+  box-shadow: 0 0 6px rgba(247,194,106,0.5);
+}
+
+/* TOPIC PILLS */
+.topics-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.topics-scroll {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.25rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.topics-scroll::-webkit-scrollbar { display: none; }
+
+.topic-chip {
+  flex-shrink: 0;
+  padding: 0.5rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.topic-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+/* GENERATE BTN */
+.gen-btn {
+  width: 100%;
+  padding: 1.1rem;
+  background: linear-gradient(135deg, var(--accent) 0%, #5b4fd4 100%);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 24px rgba(124,106,247,0.35);
+  position: relative;
+  overflow: hidden;
+}
+.gen-btn:active { transform: scale(0.98); }
+.gen-btn:disabled { opacity: 0.55; transform: none; }
+
+.gen-btn-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
+  transform: translateX(-100%);
+  animation: shine 2.5s ease-in-out infinite;
+}
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  40%,100% { transform: translateX(100%); }
+}
+
+/* LOADING */
+.loading-overlay {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 1.5rem;
+  padding: 3rem 1.5rem;
+}
+.loading-overlay.active { display: flex; }
+
+.loader-ring {
+  width: 52px; height: 52px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loader-text {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.6;
+  animation: breathe 1.8s ease-in-out infinite;
+}
+@keyframes breathe { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+/* ── LESSON SCREEN ── */
+.lesson-topic-pill {
+  display: inline-block;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid rgba(247,194,106,0.25);
+  padding: 0.25em 0.75em;
+  border-radius: 100px;
+  margin-bottom: 0.75rem;
+}
+
+.lesson-title {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.lesson-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1rem;
+  line-height: 1.9;
+  color: rgba(236,234,248,0.82);
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+.lesson-body strong { color: var(--gold); font-weight: 600; }
+.lesson-body em     { color: var(--green); font-style: italic; }
+
+/* SECTION LABEL */
+.sec-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.sec-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* WORD CARDS */
+.word-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+  overflow: hidden;
+  animation: slideUp 0.35s ease both;
+}
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.word-card:active { border-color: var(--accent); }
+
+.word-card-front, .word-card-back { transition: all 0.2s; }
+.word-card.open .word-card-back { display: block; }
+.word-card:not(.open) .word-card-back { display: none; }
+
+.word-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+}
+
+.word-en {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.word-type {
+  font-size: 0.62rem;
+  font-style: italic;
+  font-family: 'Crimson Pro', serif;
+  color: var(--green);
+}
+
+.word-pt {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 0.6rem;
+}
+
+.word-example {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: rgba(236,234,248,0.55);
+  border-left: 2px solid var(--accent);
+  padding-left: 0.75rem;
+  line-height: 1.5;
+}
+
+.word-expand {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+.word-card.open .word-expand { transform: rotate(180deg); }
+
+.word-tip {
+  margin-top: 0.9rem;
+  padding: 0.75rem;
+  background: var(--surface2);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: rgba(236,234,248,0.7);
+}
+.word-tip::before { content: '💡 '; }
+
+/* ── QUIZ SCREEN ── */
+.quiz-progress {
+  height: 4px;
+  background: var(--border);
+  border-radius: 100px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+.quiz-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  border-radius: 100px;
+  transition: width 0.4s ease;
+}
+
+.quiz-counter {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.quiz-q {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  min-height: 3.5rem;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.quiz-opt {
+  width: 100%;
+  padding: 0.9rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.82rem;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.quiz-opt:active:not(:disabled) { transform: scale(0.98); }
+
+.opt-letter {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex; align-items:center; justify-content:center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.quiz-opt.correct { border-color: var(--green); background: var(--green-dim); }
+.quiz-opt.correct .opt-letter { background: var(--green); border-color: var(--green); color: var(--bg); }
+.quiz-opt.wrong   { border-color: var(--red); background: rgba(247,106,106,0.1); }
+.quiz-opt.wrong   .opt-letter { background: var(--red); border-color: var(--red); color: white; }
+.quiz-opt:disabled { cursor: default; }
+
+.quiz-feedback {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  font-style: italic;
+  line-height: 1.6;
+  min-height: 2.5rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  display: none;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.ok { background: var(--green-dim); color: var(--green); }
+.quiz-feedback.err { background: rgba(247,106,106,0.1); color: var(--red); }
+
+.quiz-next-btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--accent);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  display: none;
+  transition: all 0.15s;
+}
+.quiz-next-btn.show { display: block; }
+.quiz-next-btn:active { transform: scale(0.98); }
+
+/* RESULT CARD */
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+}
+.result-emoji { font-size: 3rem; margin-bottom: 0.75rem; }
+.result-title {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.result-score {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+.result-sub {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+.result-btn {
+  padding: 0.85rem 2rem;
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  color: var(--accent);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+/* ── WORDS LIST SCREEN ── */
+.words-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  gap: 1rem;
+  color: var(--muted);
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  flex: 1;
+}
+.words-empty-icon { font-size: 3rem; }
+
+/* INSTALL BANNER */
+.install-banner {
+  background: linear-gradient(135deg, var(--accent-dim), var(--gold-dim));
+  border: 1px solid rgba(124,106,247,0.3);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+}
+.install-banner.show { display: flex; }
+.install-text { flex:1; font-size: 0.75rem; line-height:1.5; color: rgba(236,234,248,0.8); }
+.install-text strong { color: var(--text); display: block; font-size: 0.8rem; }
+.install-btn {
+  flex-shrink: 0;
+  padding: 0.5rem 1rem;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Error */
+.error-msg {
+  color: var(--red);
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 0px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <span class="flag">🇺🇸</span>
+    Daily <span>English</span>
+  </div>
+  <div class="topbar-streak" id="topStreak">🔥 0 dias</div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottomnav">
+  <div class="nav-item active" id="nav-home" onclick="showScreen('home')">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">Início</div>
+  </div>
+  <div class="nav-item" id="nav-lesson" onclick="showScreen('lesson')">
+    <div class="nav-icon">📖</div>
+    <div class="nav-label">Lição</div>
+  </div>
+  <div class="nav-item" id="nav-words" onclick="showScreen('words')">
+    <div class="nav-icon">🗂️</div>
+    <div class="nav-label">Palavras</div>
+  </div>
+  <div class="nav-item" id="nav-quiz" onclick="showScreen('quiz')">
+    <div class="nav-icon">🧠</div>
+    <div class="nav-label">Quiz</div>
+  </div>
+</div>
+
+<!-- ── HOME SCREEN ── -->
+<div class="screen active" id="screen-home">
+  <div class="scroll-area">
+
+    <div class="install-banner" id="installBanner">
+      <div>📲</div>
+      <div class="install-text">
+        <strong>Instalar no celular</strong>
+        Adicione à tela inicial para acesso rápido como um app
+      </div>
+      <button class="install-btn" id="installBtn">Instalar</button>
+    </div>
+
+    <div class="home-hero">
+      <div class="home-date" id="homeDate"></div>
+      <h1 class="home-title">Seu inglês<br><strong>avança hoje.</strong></h1>
+    </div>
+
+    <div class="streak-card">
+      <div class="streak-left">
+        <div class="streak-num" id="streakNum">0</div>
+        <div class="streak-sub">dias seguidos</div>
+      </div>
+      <div class="streak-dots" id="streakDots"></div>
+    </div>
+
+    <div class="topics-label">Escolha o tema de hoje</div>
+    <div class="topics-scroll" id="topicsScroll">
+      <div class="topic-chip active" data-topic="tech">💻 Tech / Dev</div>
+      <div class="topic-chip" data-topic="finance">💰 Finanças</div>
+      <div class="topic-chip" data-topic="business">💼 Negócios</div>
+      <div class="topic-chip" data-topic="daily">🗣️ Cotidiano</div>
+      <div class="topic-chip" data-topic="travel">✈️ Viagens</div>
+      <div class="topic-chip" data-topic="idioms">🎯 Expressões</div>
+    </div>
+
+    <button class="gen-btn" id="genBtn" onclick="generate()">
+      <div class="gen-btn-shine"></div>
+      <span>⚡</span> GERAR LIÇÃO DO DIA
+    </button>
+
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loader-ring"></div>
+      <div class="loader-text">A IA está preparando<br>sua lição personalizada...</div>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+  </div>
+</div>
+
+<!-- ── LESSON SCREEN ── -->
+<div class="screen" id="screen-lesson">
+  <div class="scroll-area" id="lessonScroll">
+    <div id="lessonEmpty" class="words-empty">
+      <div class="words-empty-icon">📖</div>
+      <div>Gere uma lição primeiro na tela Início</div>
+    </div>
+    <div id="lessonContent" style="display:none">
+      <div class="lesson-topic-pill" id="lessonPill"></div>
+      <div class="lesson-title" id="lessonTitle"></div>
+      <div class="lesson-body" id="lessonBody"></div>
+      <div class="sec-label">10 Palavras de Hoje</div>
+      <div id="wordsList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── WORDS SCREEN ── -->
+<div class="screen" id="screen-words">
+  <div class="scroll-area">
+    <div id="wordsEmpty" class="words-empty">
+      <div class="words-empty-icon">🗂️</div>
+      <div>Gere uma lição para ver as palavras aqui</div>
+    </div>
+    <div id="wordsContent" style="display:none">
+      <div class="sec-label">Todas as Palavras</div>
+      <div id="wordsListFull"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── QUIZ SCREEN ── -->
+<div class="screen" id="screen-quiz">
+  <div class="scroll-area">
+    <div id="quizEmpty" class="words-empty">
+      <div class="words-empty-icon">🧠</div>
+      <div>Gere uma lição para desbloquear o quiz</div>
+    </div>
+    <div id="quizContent" style="display:none">
+      <div class="quiz-progress">
+        <div class="quiz-progress-fill" id="quizBar" style="width:0%"></div>
+      </div>
+      <div class="quiz-counter">
+        <span id="quizCounter">Questão 1 / 5</span>
+        <span id="quizScore" style="color:var(--green)"></span>
+      </div>
+      <div class="quiz-q" id="quizQ"></div>
+      <div class="quiz-options" id="quizOpts"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <button class="quiz-next-btn" id="quizNextBtn" onclick="nextQ()">Próxima questão →</button>
+    </div>
+    <div id="quizResult" style="display:none" class="result-card">
+      <div class="result-emoji" id="resultEmoji"></div>
+      <div class="result-title">Quiz concluído!</div>
+      <div class="result-score" id="resultScore"></div>
+      <div class="result-sub" id="resultSub"></div>
+      <button class="result-btn" onclick="restartQuiz()">Refazer Quiz</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── INSTALL PWA ──────────────────────────────────
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').classList.add('show');
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') document.getElementById('installBanner').classList.remove('show');
+  deferredPrompt = null;
+});
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+// ── STATE ──────────────────────────────────────
+let currentTopic = 'tech';
+let lessonData = null;
+let qIdx = 0, qCorrect = 0, qAnswered = false;
+
+// ── DATE ──────────────────────────────────────
+const now = new Date();
+document.getElementById('homeDate').textContent = now.toLocaleDateString('pt-BR', {
+  weekday:'long', day:'numeric', month:'long'
+});
+
+// ── STREAK ──────────────────────────────────────
+function getStreak() {
+  try {
+    return JSON.parse(localStorage.getItem('eng_streak') || '{"n":0,"last":null,"hist":[]}');
+  } catch { return {n:0,last:null,hist:[]}; }
+}
+function saveStreak() {
+  const d = getStreak();
+  const today = new Date().toDateString();
+  const yest  = new Date(Date.now()-86400000).toDateString();
+  if (d.last === today) return;
+  d.n = d.last === yest ? d.n + 1 : 1;
+  d.last = today;
+  d.hist = [...(d.hist||[]).slice(-6), today];
+  localStorage.setItem('eng_streak', JSON.stringify(d));
+  renderStreak();
+}
+function renderStreak() {
+  const d = getStreak();
+  document.getElementById('streakNum').textContent = d.n;
+  document.getElementById('topStreak').textContent = `🔥 ${d.n} dia${d.n !== 1 ? 's' : ''}`;
+  const dots = document.getElementById('streakDots');
+  dots.innerHTML = '';
+  for (let i=0;i<7;i++) {
+    const el = document.createElement('div');
+    el.className = 'streak-dot' + (i < Math.min(d.n,7) ? ' done' : '');
+    dots.appendChild(el);
+  }
+}
+renderStreak();
+
+// ── TOPICS ──────────────────────────────────────
+document.querySelectorAll('.topic-chip').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('.topic-chip').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    currentTopic = c.dataset.topic;
+  });
+});
+
+const TOPIC_MAP = {
+  tech:     'technology, programming, software development and IT',
+  finance:  'finance, banking, investments and financial markets',
+  business: 'business, corporate communication, management and entrepreneurship',
+  daily:    'everyday conversation, social situations and casual English',
+  travel:   'travel, tourism, airports, hotels and transportation',
+  idioms:   'English idioms, phrasal verbs and common expressions'
+};
+const TOPIC_LABEL = {
+  tech:'Tech / Dev', finance:'Finanças', business:'Negócios',
+  daily:'Cotidiano', travel:'Viagens', idioms:'Expressões'
+};
+
+// ── GENERATE ──────────────────────────────────────
+async function generate() {
+  const btn = document.getElementById('genBtn');
+  const loading = document.getElementById('loadingOverlay');
+  const errEl = document.getElementById('errorMsg');
+
+  btn.disabled = true;
+  btn.style.display = 'none';
+  loading.classList.add('active');
+  errEl.textContent = '';
+
+  const prompt = `You are an expert English teacher creating a daily lesson for a Brazilian developer who works with Python automation, fintech systems, and data science.
+
+Generate a JSON lesson with this EXACT structure (respond ONLY with valid JSON, no markdown, no extra text):
+
+{
+  "lessonTitle": "Short catchy title in English (4-6 words)",
+  "lessonTopic": "${TOPIC_LABEL[currentTopic]}",
+  "lessonExplanation": "2-3 paragraphs in Portuguese explaining today's grammar or communication point related to ${TOPIC_MAP[currentTopic]}. Use <strong> for key English terms and <em> for examples. Be practical and relate to the developer context.",
+  "words": [
+    {
+      "word": "English word or phrase",
+      "type": "noun/verb/adjective/adverb/phrase",
+      "translation": "tradução em português",
+      "example": "Natural English sentence using the word",
+      "tip": "Dica em português: como/quando usar ou diferença importante"
+    }
+  ],
+  "quiz": [
+    {
+      "question": "Pergunta em português sobre uma das palavras",
+      "options": ["opção A", "opção B", "opção C", "opção D"],
+      "correct": 0,
+      "explanation": "Explicação em português do porquê é correto"
+    }
+  ]
+}
+
+Requirements:
+- Exactly 10 words related to ${TOPIC_MAP[currentTopic]}
+- Intermediate to advanced level words
+- Natural professional examples
+- Exactly 5 quiz questions using words from the list
+- Quiz wrong options should be plausible (similar words or translations)
+- All tips in Portuguese, all examples in English`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content.map(b => b.text||'').join('');
+    lessonData = JSON.parse(raw.replace(/```json|```/g,'').trim());
+
+    renderLesson();
+    saveStreak();
+    showScreen('lesson');
+  } catch(e) {
+    errEl.textContent = '⚠️ Erro ao gerar lição. Verifique sua conexão e tente novamente.';
+    console.error(e);
+  }
+
+  loading.classList.remove('active');
+  btn.style.display = 'flex';
+  btn.disabled = false;
+}
+
+// ── RENDER ──────────────────────────────────────
+function renderLesson() {
+  if (!lessonData) return;
+
+  // Lesson tab
+  document.getElementById('lessonEmpty').style.display = 'none';
+  document.getElementById('lessonContent').style.display = 'block';
+  document.getElementById('lessonPill').textContent = lessonData.lessonTopic;
+  document.getElementById('lessonTitle').textContent = lessonData.lessonTitle;
+  document.getElementById('lessonBody').innerHTML = lessonData.lessonExplanation;
+
+  // Words (lesson tab)
+  renderWordsList('wordsList');
+  renderWordsList('wordsListFull');
+
+  document.getElementById('wordsEmpty').style.display = 'none';
+  document.getElementById('wordsContent').style.display = 'block';
+
+  // Quiz reset
+  qIdx = 0; qCorrect = 0; qAnswered = false;
+  document.getElementById('quizEmpty').style.display = 'none';
+  document.getElementById('quizContent').style.display = 'block';
+  document.getElementById('quizResult').style.display = 'none';
+  renderQuizQ();
+}
+
+function renderWordsList(containerId) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  lessonData.words.forEach((w, i) => {
+    const d = document.createElement('div');
+    d.className = 'word-card';
+    d.style.animationDelay = `${i * 0.04}s`;
+    d.innerHTML = `
+      <div class="word-card-front">
+        <div class="word-head">
+          <div class="word-en">${w.word}</div>
+          <div class="word-type">${w.type}</div>
+        </div>
+        <div class="word-pt">${w.translation}</div>
+        <div class="word-example">"${w.example}"</div>
+      </div>
+      <div class="word-card-back">
+        <div class="word-tip">${w.tip}</div>
+      </div>
+      <div class="word-expand">▾</div>`;
+    d.addEventListener('click', () => d.classList.toggle('open'));
+    el.appendChild(d);
+  });
+}
+
+// ── QUIZ ──────────────────────────────────────────
+function renderQuizQ() {
+  if (!lessonData) return;
+  const total = lessonData.quiz.length;
+  const pct = (qIdx / total) * 100;
+  document.getElementById('quizBar').style.width = pct + '%';
+  document.getElementById('quizCounter').textContent = `Questão ${qIdx+1} / ${total}`;
+  document.getElementById('quizScore').textContent = qIdx > 0 ? `✓ ${qCorrect}` : '';
+
+  const q = lessonData.quiz[qIdx];
+  document.getElementById('quizQ').textContent = q.question;
+  qAnswered = false;
+
+  const fb = document.getElementById('quizFeedback');
+  fb.textContent = '';
+  fb.className = 'quiz-feedback';
+
+  document.getElementById('quizNextBtn').className = 'quiz-next-btn';
+
+  const opts = document.getElementById('quizOpts');
+  opts.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span>${opt}`;
+    btn.addEventListener('click', () => answerQ(i));
+    opts.appendChild(btn);
+  });
+}
+
+function answerQ(chosen) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = lessonData.quiz[qIdx];
+  const btns = document.querySelectorAll('.quiz-opt');
+  btns.forEach(b => b.disabled = true);
+  btns[q.correct].classList.add('correct');
+
+  const fb = document.getElementById('quizFeedback');
+  if (chosen === q.correct) {
+    qCorrect++;
+    fb.textContent = '✓ Correto! ' + q.explanation;
+    fb.className = 'quiz-feedback show ok';
+  } else {
+    btns[chosen].classList.add('wrong');
+    fb.textContent = '✗ ' + q.explanation;
+    fb.className = 'quiz-feedback show err';
+  }
+  document.getElementById('quizNextBtn').className = 'quiz-next-btn show';
+}
+
+function nextQ() {
+  qIdx++;
+  if (qIdx >= lessonData.quiz.length) {
+    showResult();
+  } else {
+    renderQuizQ();
+  }
+}
+
+function showResult() {
+  const total = lessonData.quiz.length;
+  document.getElementById('quizContent').style.display = 'none';
+  document.getElementById('quizResult').style.display = 'block';
+  const pct = qCorrect / total;
+  document.getElementById('resultEmoji').textContent =
+    pct === 1 ? '🏆' : pct >= 0.6 ? '🎉' : '💪';
+  document.getElementById('resultScore').textContent = `${qCorrect} / ${total}`;
+  document.getElementById('resultSub').textContent =
+    pct === 1 ? 'Perfeito! Você dominou as palavras de hoje!' :
+    pct >= 0.6 ? 'Ótimo resultado! Continue praticando.' :
+    'Revise as palavras e tente novamente.';
+}
+
+function restartQuiz() {
+  qIdx = 0; qCorrect = 0; qAnswered = false;
+  document.getElementById('quizResult').style.display = 'none';
+  document.getElementById('quizContent').style.display = 'block';
+  renderQuizQ();
+}
+
+// ── NAVIGATION ──────────────────────────────────────
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+}
+</script>
+</body>
+</html>
